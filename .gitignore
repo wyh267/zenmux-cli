@@ -1,0 +1,40 @@
+# 构建产物
+/zenmux
+/zenmux-cli
+/dist/
+/build/
+
+# CLI 运行时生成的媒体文件（默认输出名）
+output.png
+output.jpeg
+output.webp
+output.mp4
+output.pcm
+output.wav
+output.mp3
+
+# Go 测试与覆盖率产物
+*.test
+*.out
+coverage.*
+
+# Go 工作目录
+/vendor/
+
+# Agent 工具会话目录
+.zcode/
+.claude/
+.agent/
+
+# IDE / 编辑器
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# 本地配置与密钥（避免误提交）
+config.yaml
+*.local.yaml

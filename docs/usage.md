@@ -318,6 +318,60 @@ is_urgent [noul]: 0.97
 
 ---
 
+## 六、常驻 HTTP 服务（serve）
+
+把 zenmux 以 HTTP 网关形式常驻运行，其他服务通过 HTTP 调用 zenmux 的全部能力。
+API Key 留在服务端配置中，调用方只需携带访问令牌。
+
+```bash
+# 启动（未设 token 时只允许监听回环地址）
+zenmux serve --addr 127.0.0.1:8310 --token my-secret-token
+```
+
+### 端点
+
+| 端点 | 说明 |
+| --- | --- |
+| `GET /healthz` | 健康检查（无需令牌） |
+| `GET /v1/models` | 模型列表 |
+| `GET /v1/status` | 套餐状态/余额/Flow 汇率 |
+| `POST /v1/chat` | 文本对话，`"stream":true` 时 SSE 流式返回 |
+| `POST /v1/eval` | 结构化评估（jev） |
+
+除 `/healthz` 外，所有请求需带 `Authorization: Bearer <token>`。
+`model` 字段均可缺省，缺省时使用服务端配置的 `default_model.*`。
+
+### 调用示例
+
+```bash
+# 非流式对话
+curl -X POST http://127.0.0.1:8310/v1/chat \
+  -H "Authorization: Bearer my-secret-token" \
+  -H "Content-Type: application/json" \
+  -d '{"messages":[{"role":"user","content":"你好"}]}'
+
+# 流式对话（SSE，帧格式 data: {"content":"..."}，以 data: [DONE] 结束）
+curl -N -X POST http://127.0.0.1:8310/v1/chat \
+  -H "Authorization: Bearer my-secret-token" \
+  -H "Content-Type: application/json" \
+  -d '{"stream":true,"messages":[{"role":"user","content":"数到3"}]}'
+
+# 结构化评估
+curl -X POST http://127.0.0.1:8310/v1/eval \
+  -H "Authorization: Bearer my-secret-token" \
+  -H "Content-Type: application/json" \
+  -d '{"state":"这个API太好用了！","questions":{"sentiment":{"type":"choice","instructions":"情感倾向？","criteria":{"positive":null,"negative":null,"neutral":null}}}}'
+```
+
+### 命令参数
+
+| 参数 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--addr` | 监听地址 | `127.0.0.1:8310` |
+| `--token` | 访问令牌；未设置时强制只能监听回环地址 | 无 |
+
+---
+
 ## 附录
 
 ### 全部命令一览
@@ -330,6 +384,7 @@ is_urgent [noul]: 0.97
 | `zenmux image` | 图片生成 |
 | `zenmux video` | 视频生成（异步） |
 | `zenmux eval` | 结构化评估（noul/choice/score） |
+| `zenmux serve` | 常驻 HTTP 网关服务 |
 | `zenmux models` | 列出所有支持的模型 |
 | `zenmux status` | 查询套餐状态与用量 |
 | `zenmux config` | 查看与修改配置 |

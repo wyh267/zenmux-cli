@@ -14,6 +14,7 @@
 | `zenmux voice` | 文本转语音 (TTS) |
 | `zenmux voice transcribe` | 语音转文本 (STT) |
 | `zenmux eval` | 结构化评估：是/否判定、选项分类、分级打分 |
+| `zenmux serve` | 常驻 HTTP 网关，供其他服务调用 zenmux |
 | `zenmux models` | 列出所有支持的模型及其模态 |
 | `zenmux status` | 查询套餐状态、余额、Flow 汇率 |
 | `zenmux config` | 查看与修改配置 |
@@ -112,7 +113,16 @@ zenmux eval "救命！我的账户回款已经连续 3 天失败了。" -q quest
 zenmux eval --state-file dialog.json -q questions.json --json
 ```
 
-### 8. 套餐状态
+### 8. 常驻 HTTP 服务
+
+```bash
+zenmux serve --addr 127.0.0.1:8310 --token <访问令牌>
+```
+
+把 zenmux 的能力以 HTTP 网关形式常驻，API Key 留在服务端，调用方只带访问令牌。
+当前提供：`GET /healthz`、`GET /v1/models`、`GET /v1/status`、`POST /v1/chat`（支持 SSE 流式）、`POST /v1/eval`。
+
+### 9. 套餐状态
 
 ```bash
 zenmux status

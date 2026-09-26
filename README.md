@@ -13,6 +13,7 @@
 | `zenmux video` | 文生视频 / 图生视频（异步轮询，自动下载） |
 | `zenmux voice` | 文本转语音 (TTS) |
 | `zenmux voice transcribe` | 语音转文本 (STT) |
+| `zenmux eval` | 结构化评估：是/否判定、选项分类、分级打分 |
 | `zenmux models` | 列出所有支持的模型及其模态 |
 | `zenmux status` | 查询套餐状态、余额、Flow 汇率 |
 | `zenmux config` | 查看与修改配置 |
@@ -102,7 +103,16 @@ zenmux voice transcribe speech.wav
 zenmux voice transcribe recording.mp3 --language zh
 ```
 
-### 7. 套餐状态
+### 7. 结构化评估
+
+使用 `typesafe/jev-latest` 等 System One 评估模型，对内容做类型化评估：是/否判定（noul）、选项分类（choice）、分级打分（score），返回概率化的结构化答案。
+
+```bash
+zenmux eval "救命！我的账户回款已经连续 3 天失败了。" -q questions.json
+zenmux eval --state-file dialog.json -q questions.json --json
+```
+
+### 8. 套餐状态
 
 ```bash
 zenmux status
@@ -123,6 +133,7 @@ zenmux status
 | `default_model.video` | video 默认模型 | `bytedance/doubao-seedance-2.0` |
 | `default_model.tts` | voice (TTS) 默认模型 | `google/gemini-3.1-flash-tts-preview` |
 | `default_model.stt` | voice transcribe 默认模型 | `qwen/qwen3-asr-flash` |
+| `default_model.eval` | eval 默认模型 | `typesafe/jev-latest` |
 
 优先级：命令行 `--flag` > 环境变量 > 配置文件 > 内置默认值。
 
@@ -145,4 +156,5 @@ zenmux-cli/
 - [Image Generation API](https://docs.zenmux.ai/zh/api/openai/generate-an-image)
 - [Video Generation API](https://docs.zenmux.ai/zh/api/zenmux/generate-videos-native)
 - [TTS / STT API](https://docs.zenmux.ai/zh/api/openai/create-audio-speech)
+- [结构化评估（System One）API](https://docs.zenmux.ai/zh/api/typesafe/systemone)
 - [Platform Management API](https://docs.zenmux.ai/zh/api/platform/subscription-detail)

@@ -23,7 +23,8 @@ var configCmd = &cobra.Command{
   default_model.image  image 子命令的默认模型
   default_model.video  video 子命令的默认模型
   default_model.tts    voice 子命令的默认 TTS 模型
-  default_model.stt    voice transcribe 的默认 STT 模型`,
+  default_model.stt    voice transcribe 的默认 STT 模型
+  default_model.eval   eval 子命令的默认评估模型`,
 }
 
 // configShowCmd 显示当前配置（Key 脱敏）。
@@ -47,6 +48,7 @@ var configShowCmd = &cobra.Command{
 		fmt.Printf("  video:              %s\n", cfg.Models.Video)
 		fmt.Printf("  tts:                %s\n", cfg.Models.TTS)
 		fmt.Printf("  stt:                %s\n", cfg.Models.STT)
+		fmt.Printf("  eval:               %s\n", cfg.Models.Eval)
 		return nil
 	},
 }
@@ -98,6 +100,8 @@ func setConfigField(cfg *config.Config, key, value string) error {
 		cfg.Models.TTS = value
 	case "default_model.stt":
 		cfg.Models.STT = value
+	case "default_model.eval":
+		cfg.Models.Eval = value
 	default:
 		return fmt.Errorf("未知的配置项 %q，可用项见 `zenmux config --help`", key)
 	}

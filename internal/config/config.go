@@ -19,6 +19,7 @@ var DefaultModels = Models{
 	Video: "bytedance/doubao-seedance-2.0",
 	TTS:   "google/gemini-3.1-flash-tts-preview",
 	STT:   "qwen/qwen3-asr-flash",
+	Eval:  "typesafe/jev-latest",
 }
 
 // Models 各子命令的默认模型配置。
@@ -28,6 +29,7 @@ type Models struct {
 	Video string `yaml:"video"`
 	TTS   string `yaml:"tts"`
 	STT   string `yaml:"stt"`
+	Eval  string `yaml:"eval"`
 }
 
 // Config zenmux-cli 的完整配置。
@@ -100,6 +102,9 @@ func Load() (*Config, error) {
 	}
 	if cfg.Models.STT == "" {
 		cfg.Models.STT = DefaultModels.STT
+	}
+	if cfg.Models.Eval == "" {
+		cfg.Models.Eval = DefaultModels.Eval
 	}
 	return cfg, nil
 }

@@ -241,6 +241,83 @@ zenmux video "歌手在舞台上表演" --audio
 
 ---
 
+## 五、结构化评估（eval）
+
+使用 System One 评估模型（默认 `typesafe/jev-latest`）对一段内容做**类型化评估**，直接返回概率化的结构化答案。适合内容分类、情感打分、紧急度判断、工单路由等场景。
+
+每个问题是三种类型之一：
+
+| 类型 | 作用 | 返回 |
+| --- | --- | --- |
+| `noul` | 是/否判定 | 为"是"的概率（0~1） |
+| `choice` | 从自定义选项中选一个 | 选中项 + 概率分布 + 置信度 |
+| `score` | 按自定义分级打分 | 概率加权分值 + 分级说明 + 置信度 |
+
+### 准备问题定义（JSON 文件）
+
+```json
+{
+  "is_urgent": {
+    "type": "noul",
+    "instructions": "这段内容是否传达出紧迫感？"
+  },
+  "department": {
+    "type": "choice",
+    "instructions": "应由哪个团队来处理？",
+    "criteria": {
+      "billing": "支付、开票、退款",
+      "technical": "缺陷、故障、集成",
+      "sales": "定价、升级、新开户"
+    }
+  },
+  "frustration": {
+    "type": "score",
+    "instructions": "客户的不满程度如何？",
+    "criteria": ["平静", "不满", "非常愤怒"]
+  }
+}
+```
+
+### 基本用法
+
+```bash
+# 评估一段文本
+zenmux eval "救命！我的账户回款已经连续 3 天失败了。" -q questions.json
+
+# 从标准输入读问题定义
+cat questions.json | zenmux eval "用户对话记录……" -q -
+
+# 评估结构化数据（对话记录、业务状态等 JSON）
+zenmux eval --state-file dialog.json -q questions.json
+
+# 输出原始 JSON（方便管道处理）
+zenmux eval "这条评论很满意" -q questions.json --json
+```
+
+### 输出示例
+
+```
+department [choice]: billing（置信度 0.90）
+  概率分布: billing=0.93 sales=0.00 technical=0.07
+frustration [score]: 1.74（置信度 0.62）
+  分级: 0=平静 1=不满 2=非常愤怒
+  概率分布: 0=0.00 1=0.26 2=0.74
+is_urgent [noul]: 0.97
+
+[用量] input=431 output=73
+```
+
+### 命令参数
+
+| 参数 | 说明 | 默认值 |
+| --- | --- | --- |
+| `-m, --model` | 评估模型 slug | `default_model.eval`（默认 `typesafe/jev-latest`） |
+| `-q, --questions` | 问题定义 JSON 文件，`-` 表示标准输入 | 必填 |
+| `--state-file` | 待评估的结构化 JSON 文件（替代文本参数） | 无 |
+| `--json` | 输出原始 JSON 响应 | 关闭 |
+
+---
+
 ## 附录
 
 ### 全部命令一览
@@ -252,6 +329,7 @@ zenmux video "歌手在舞台上表演" --audio
 | `zenmux voice transcribe` | 语音转文本（STT） |
 | `zenmux image` | 图片生成 |
 | `zenmux video` | 视频生成（异步） |
+| `zenmux eval` | 结构化评估（noul/choice/score） |
 | `zenmux models` | 列出所有支持的模型 |
 | `zenmux status` | 查询套餐状态与用量 |
 | `zenmux config` | 查看与修改配置 |
@@ -267,6 +345,7 @@ zenmux config set default_model.image    gpt-image-2
 zenmux config set default_model.video    minimax/minimax-h3
 zenmux config set default_model.tts      google/gemini-3.1-flash-tts-preview
 zenmux config set default_model.stt      qwen/qwen3-asr-flash
+zenmux config set default_model.eval     typesafe/jev-latest
 zenmux config show                                      # 查看当前配置
 ```
 
